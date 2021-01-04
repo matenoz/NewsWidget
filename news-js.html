@@ -1,0 +1,159 @@
+<script type="text/javascript">
+      
+    // Creating HTML for a spinner and Loading...
+    function getLoadingHTML() {
+      const loadingHTML = '<div class="loading"><img src="data:image/gif;base64,R0lGODlhFAAUAJEDAMzMzLOzs39/f////yH/C05FVFNDQVBFMi4wAwEAAAAh+QQFCgADACwAAAAAFAAUAAACPJyPqcuNItyCUJoQBo0ANIxpXOctYHaQpYkiHfM2cUrCNT0nqr4uudsz/IC5na/2Mh4Hu+HR6YBaplRDAQAh+QQFCgADACwEAAIADAAGAAACFpwdcYupC8BwSogR46xWZHl0l8ZYQwEAIfkEBQoAAwAsCAACAAoACgAAAhccMKl2uHxGCCvO+eTNmishcCCYjWEZFgAh+QQFCgADACwMAAQABgAMAAACFxwweaebhl4K4VE6r61DiOd5SfiN5VAAACH5BAUKAAMALAgACAAKAAoAAAIYnD8AeKqcHIwwhGntEWLkO3CcB4biNEIFACH5BAUKAAMALAQADAAMAAYAAAIWnDSpAHa4GHgohCHbGdbipnBdSHphAQAh+QQFCgADACwCAAgACgAKAAACF5w0qXa4fF6KUoVQ75UaA7Bs3yeNYAkWACH5BAUKAAMALAIABAAGAAwAAAIXnCU2iMfaRghqTmMp1moAoHyfIYIkWAAAOw==" class="spinner" /> Loading... </div>';
+      return loadingHTML;
+    }
+    
+    
+    // Change the inner HTML of elements with the specified class to the loading HTML
+    function setToLoading(className) {
+      const loadingHTML = getLoadingHTML();
+      var elements = document.getElementsByClassName(className);
+      for (var i = 0; i < elements.length; i++) {
+        elements[i].innerHTML = loadingHTML;
+      }        
+    }
+    
+    
+    // Format a date to the local convention
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      const locale = () => (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.userLanguage || navigator.language || navigator.browserLanguage || 'en';
+      const options = {day:"numeric", month:"short", year:"numeric"};
+      return date.toLocaleDateString(locale, options);
+    }
+    
+    
+    // Format a time to the local convention
+    function formatTime(dateStr) {
+      const date = new Date(dateStr);
+      const locale = () => (navigator.languages && navigator.languages.length) ? navigator.languages[0] : navigator.userLanguage || navigator.language || navigator.browserLanguage || 'en';
+      const options = {hour: '2-digit', minute:'2-digit'};
+      return date.toLocaleTimeString(locale, options);
+    }
+    
+    
+    // Replace new lines with HTML breaks
+    function nl2br(str) {
+      return str.replace(/\n/g, "<br />");
+    } 
+    
+    
+    // Set the filter to the specified tag
+    function setFilter(tag) {    
+      const tagFilter = document.getElementById("tag-filter");
+      tagFilter.value = tag;
+      tagFilter.dispatchEvent(new Event('change'))
+    }      
+    
+    
+    // Make a tag clicbale to trigger the filter
+    function linkTag(tag) {
+      return `<li><a onclick="setFilter('${tag}')" title="Filter news for just ${tag}">&num;${tag}</a></li>`;
+    }
+    
+    /** Display the news from the backend - expecting
+    
+    news = {
+      "items" : [
+        {
+          "headline"      : "", // str
+          "snippet"       : "", // str
+          "url"           : "", // str
+          "published"     : "", // date 
+          "expiry"        : "", // date 
+          "publisher"     : "", // str
+          "tags"          : [], // arr of str
+          "thumbnailId"   : ""  // str (Google Drive URL)
+        }
+      ]
+      "tags"  : []   // arr of str
+    }
+
+    **/
+    function displayNews(newsJSON) {
+      //console.log(newsJSON);
+      const newsObj = newsJSON //JSON.parse(newsJSON); // 
+      // console.log({newsObj});
+      const { items, tags, updated }  = newsObj;
+      console.table(items);
+      const tagFilter    = document.getElementById("tag-filter");
+      const newsItems    = document.getElementById("news-items");
+      const lastUpdated  = document.getElementById("last-updated");
+      const thumbDataUri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcAQMAAAAhlF3CAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAANQTFRF7u7ug0nRbQAAAB1JREFUeJztwQENAAAAwqD3T20ON6AAAAAAAAB+DRjsAAEyNe2sAAAAAElFTkSuQmCC"
+      
+      
+      // Populate the tags filter select with options
+      var optionsHTML = `
+        <option value="showAll">Tutte le news</option>`;
+      for (let i = 0; i < tags.length; i++) {
+        let tag = tags[i];
+        optionsHTML += `
+        <option value="${tag}">${tag}</option>`;
+      } // for (var i = 0; i < tags.length; i++) 
+      tagFilter.innerHTML = optionsHTML;
+      
+      // Populate the news items
+      newsItems.innerHTML = ``;
+      for (let i = 0; i < items.length; i++) {
+        const {headline, snippet, url, published, expiry, publisher, tags, thumbnailId} = items[i];
+        let tagsClasses = (tags) ? `tag-${tags.join(' tag-')}`:'';
+        let tagsHTML    = (tags) ? `<ul class="linear">${tags.map(tag => linkTag(tag)).join("")}</ul>`:'';
+        // Generate thumbnail HTML
+        let thumbnailHTML  = (thumbnailId) ? `<div class="thumbnail"><a href="${url}" title="Read: ${headline}"><img id="thumb-${thumbnailId}" src="${thumbDataUri}" /></a></div>` : '';
+        let thumbnailClass = (thumbnailId) ? '' : 'no-thumbnail';
+        // Generate metadata HTML
+        var metadataHTML = ``;
+        if (published) {metadataHTML += `Pubblicato il ${formatDate(published)}`;}
+        if (publisher) {metadataHTML += ` da ${publisher}`;}
+        if (tagsHTML)  {metadataHTML += tagsHTML;}
+        // newsHTML += `
+        newsItems.innerHTML += `
+        <div class="news-item ${tagsClasses} ${thumbnailClass}">
+          <h3 class="headline"><a href="${url}" title="Read: ${headline}">${headline}</a></h3>
+          ${thumbnailHTML}
+          <div class="snippet">${nl2br(snippet)}</div>
+          <div class="metadata">${metadataHTML}</div>
+        </div>`;
+        getThumbnail(thumbnailId);
+      } // for (var i = 0; i < items.length; i++)        
+      lastUpdated.innerHTML = formatTime(updated);        
+    } // function displayNews(newsObj)
+    
+    // Get all news items and hide if not tagged
+    function filterNews(tag) {
+      const elements = document.getElementsByClassName('news-item');
+      const tagClass = `tag-${tag}`;
+      for (var i = 0; i < elements.length; i++) {
+        var element = elements[i];
+        if (tag != 'showAll') {
+          // Show only the specified tag
+          element.style.display = (!element.classList.contains(tagClass)) ? 'none':'grid';
+        } else {
+          // Reset to show all news
+          element.style.display = 'grid';
+        } // if (tagClass != '' && tagClass != null)
+      } // for (var i = 0; i < elements.length; i++)
+    } // function filterNews(tagClass)        
+   
+    // Retrieve news from backend
+    function getNews() {
+      setToLoading('main-content');
+      google.script.run.withSuccessHandler(displayNews).getNewsObj();
+    }
+    
+    function getThumbnail(id) {
+      google.script.run.withSuccessHandler(displayThumbnail).getThumbnailURL(id);
+      
+    }
+  
+    function displayThumbnail(thumbnail) {
+      // Update the thumbnail src with url
+      const {id,url} = thumbnail;
+      document.getElementById(`thumb-${id}`).src = url;
+    }
+  </script>
+  
+

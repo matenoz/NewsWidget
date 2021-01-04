@@ -1,0 +1,32 @@
+<html>
+    <head>
+   <?!= include('head-js');?>
+      <base target="_blank">
+   <?!= include('stylesheet');?>   
+   <?!= include('news-css'); ?>
+    </head>
+    <body onload="getNews();">
+  
+
+    <div class="site">
+           <header class="header">
+        <div class="page-title">
+          <h2>Isicast News </h2>
+        </div>
+        <div class="filter">
+          <label for="tag-filter">Filtra:</label>
+          <select id="tag-filter" onchange="filterNews(this.value);">
+          </select>
+
+        </div>
+      </header>
+      <main class="main-content" id="news-items">
+          
+        </main>
+      <footer class="footer">
+        <ul class="linear" id="footer-list"><li>Aggiornato: <span id="last-updated"></span></li><li>Powered by IsicastWeb </li></ul>
+      </footer>
+    </div>
+</body>
+<?!= include('news-js'); ?>
+</html> 

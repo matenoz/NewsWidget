@@ -1,0 +1,145 @@
+<style type="text/css">
+    body{margin:2vh 2vw;padding:0;background-color:#EEE;font-family: 'Lato', sans-serif;font-size:11pt;}
+    h2{font-size:19pt;font-weight:300;margin:0 0 8px 0;line-height:1.4;}
+    h3{font-size:15pt;font-weight:400;margin:0 0 0 0;line-height:1.25;color:#1e6793;}
+    a,a:visited{color:#1e6793;}
+    ul.linear{display:inline;list-style:none;margin:0;padding:0;white-space:pre-wrap;}
+    ul.linear li{display:inline-block;white-space:pre-wrap;}
+    ul.linear li::before{content: "|";padding:0 6px;}
+    .loading{margin:10vh 0 0 0;text-align:center;}
+    .spinner{vertical-align:middle;}
+    #saving {display:none;}
+    
+    /** Grid Layout **/
+    .site {
+      border-radius:4px;box-shadow:0 3px 6px rgba(0,0,0,0.16),0 3px 6px rgba(0,0,0,0.23); background-color:#FFF; 
+      width: 96vw; 
+      height: 96vh; 
+      display: grid;
+      grid-gap:0 0;
+      grid-template-columns: auto;
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas:
+        "header"
+        "main"
+        "footer";
+    }
+    .header {
+      grid-area: header;border-bottom:1px solid #1e6793;padding:1em 1em 0 1em;box-shadow:0 4px 8px rgba(192,192,192,0.20);
+      display: grid;
+      grid-gap:0 0;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto;
+      grid-template-areas:
+        "title filter"
+    }
+    .page-title {grid-area: title;}
+    .filter {grid-area: filter;text-align:right;line-height:2.4;}
+    .main-content {grid-area: main;overflow-y: scroll;padding:0 1em;}
+    .news-item{
+      border-top:1px dashed #1e6793;padding:16px 0 8px 0;
+      display: grid;
+      grid-gap:12px;
+      grid-template-columns: auto;
+      grid-template-rows: auto auto auto auto;
+      grid-template-areas:
+        "headline"
+        "thumbnail"
+        "snippet"
+        "metadata"
+      }
+    .news-item.no-thumbnail{
+      grid-template-columns: auto;
+      grid-template-rows: auto auto auto;
+      grid-template-areas:
+        "headline"
+        "snippet"
+        "metadata"
+      }
+    .news-item:first-child{border-top-width:0px;}
+    .headline{grid-area: headline;text-align:center;}
+    .thumbnail{grid-area: thumbnail;text-align:center;}
+    .thumbnail img{margin:0;border-radius:4px;box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);}
+    .snippet{grid-area: snippet;margin:0;line-height:1.5;}
+    .metadata{grid-area: metadata;font-size:9pt; margin:0;}
+    .footer {grid-area: footer;text-align:center;border-top:1px solid #1e6793;padding:6px 0;z-index:4;box-shadow:0 -4px 8px rgba(192,192,192,0.20);font-size:9pt;}  
+    .footer ul.linear li:first-child::before{content: "";}
+
+    
+    @media screen and (min-width: 465px) {      
+      .news-item{
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto 1fr auto;
+        grid-template-areas:
+        "headline headline"
+        "snippet thumbnail"
+        "metadata metadata"
+      }
+      .news-item.no-thumbnail{
+        grid-template-columns: auto;
+        grid-template-rows: auto auto auto;
+        grid-template-areas:
+        "headline"
+        "snippet"
+        "metadata"
+      }
+      .headline{text-align:left;}
+    }
+    
+    @media screen and (min-width: 640px) {      
+      .news-item{
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto 1fr auto;
+        grid-template-areas:
+        "headline thumbnail"
+        "snippet thumbnail"
+        "metadata thumbnail"
+      }
+      .news-item.no-thumbnail{
+        grid-template-columns: auto;
+        grid-template-rows: auto auto auto;
+        grid-template-areas:
+        "headline"
+        "snippet"
+        "metadata"
+      }
+    }
+      /* Admin Panel */
+      #settings-icon {cursor:pointer;}
+      #admin-panel {display:none;position:fixed;top:0;left:0;z-index:32;width:96vw;height:96vh;margin:0;padding:2vh 2vw;text-align:center;vertical-align:top;color:#333;background-color:rgba(0,0,0,0.46);}
+      .admin-panel-content {display:inline-block;z-index:16;background-color:#EEEEEE;vertical-align:middle;width:44vw;min-width:280px;height:auto;max-height:92vh;padding:2vh 2vw;text-align:center;overflow:scroll;box-shadow:0 3px 6px rgba(0,0,0,0.16),0 3px 6px rgba(0,0,0,0.23);}
+      .admin-panel-settings {clear:both;text-align:left;padding:1vh 1vw;}
+      /* The switch - the box around the slider */
+      .switch {position: relative; display: inline-block; width: 30px; height: 17px;}
+      /* Hide default HTML checkbox */
+      .switch input {opacity: 0; width: 0; height: 0;}
+      /* The slider */
+      .slider {position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; -webkit-transition: .4s; transition: .4s;}
+      .slider:before {position: absolute; content: ""; height: 13px; width: 13px; left: 2px; bottom: 2px; background-color: white; -webkit-transition: .4s; transition: .4s;}
+      input:checked + .slider {background-color: #2196F3;}
+      input:focus + .slider {box-shadow: 0 0 1px #2196F3;}
+      input:checked + .slider:before {-webkit-transform: translateX(13px); -ms-transform: translateX(13px); transform: translateX(13px);}
+      /* Rounded sliders */
+      .slider.round {border-radius: 17px;}
+      .slider.round:before {border-radius: 50%;}      
+
+      .md-outline-box {border:1px solid #1E6793;border-radius:4px;margin:1em;padding:0 1em;vertical-align:top;z-index:1}
+      .md-outline-title {top:-0.72em;position:relative;padding:0 4px;background-color:inherit;color:#1e6793;z-index:2}
+      .md-outline-box p {margin:0 0 1em 0;}
+
+      .material-icons {font-family: 'Material Icons Two Tone';font-weight: normal;font-style: normal;font-size: 24px;color :#666666;display: inline-block;margin: 0 0.5em 0 0;line-height: 1;text-transform: none;letter-spacing: normal;word-wrap: normal;white-space: nowrap;direction: ltr;vertical-align:middle;}
+
+      .admin-panel-buttons{display:block;text-align:center;}
+      .admin-panel-buttons .left {display:inline-block; float: none;}
+      .admin-panel-buttons .right {display:inline-block; float: none;}
+      .admin-panel-buttons a{color:#222;text-decoration:none;}
+
+
+    body, .admin-panel-content {background-color:white;}
+    .site {background-color:white; color:#333333;}
+    a,a:visited,a:hover {color:#1e6793;}
+    .thumbnail img{border-radius:4px;width:220px;}
+    .md-outline-box {border:1px solid #1e6793;background-color:white;}
+    .md-outline-title {color:#1e6793;}
+    .news-item{border-top-color:#1e6793;}
+  </style>
