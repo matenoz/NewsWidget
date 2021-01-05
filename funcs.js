@@ -26,7 +26,7 @@ function getNewsObj(){
     })
   })
   const arrayTags = cleanArray(tags);
-  news.items = items;
+  news.items = items.reverse();
   news.tags =  [...new Set(arrayTags)];
   news.updated = Date();
   return news;
