@@ -6,7 +6,7 @@ function render(file, argsObject) {
       template[key] = argsObject[key];
     })
   }
-  return template.evaluate();
+  return template.evaluate().setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 function include(filename){
